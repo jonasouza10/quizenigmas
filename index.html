@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  
+  <link rel="icon" type="image/png" href="jogo.png">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1e1e2f" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Quiz Enigmas</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      background: #1e1e2f;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .btn-correta {
+      background-color: #28a745 !important;
+    }
+    .btn-incorreta {
+      background-color: #dc3545 !important;
+    }
+    .resultado {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Enigmas</h1>
+    <div id="pergunta"></div>
+    <div id="opcoes"></div>
+    <button id="reiniciar" style="display:none">Reiniciar Jogo</button>
+    <div id="resultado" class="resultado" style="display:none;"></div>
+  </div>
+
+  <script>
+    const enigmas = [
+{ p: "Tenho cidades, mas não casas. Tenho montanhas, mas não árvores. Tenho água, mas não peixes. O que sou?", o: ["Mapa", "Ilusão", "Sonho", "Computador"], r: "Mapa" },
+{ p: "Quanto mais você tira, maior eu fico. O que sou?", o: ["Buraco", "Fome", "Sombra", "Silêncio"], r: "Buraco" },
+{ p: "O que sobe, mas nunca desce?", o: ["Idade", "Balão", "Fumaça", "Helicóptero"], r: "Idade" },
+{ p: "O que tem um pescoço mas não tem cabeça?", o: ["Garrafa", "Camisa", "Relógio", "Espátula"], r: "Garrafa" },
+{ p: "O que quebra sem ser tocado?", o: ["Silêncio", "Vidro", "Coração", "Segredo"], r: "Silêncio" },
+{ p: "O que pode encher uma sala, mas não ocupa espaço?", o: ["Luz", "Som", "Ar", "Sombra"], r: "Luz" },
+{ p: "O que sempre está à sua frente, mas não pode ser visto?", o: ["Futuro", "Pensamento", "Vento", "Alma"], r: "Futuro" },
+{ p: "O que tem mãos mas não pode bater palmas?", o: ["Relógio", "Boneco", "Polvo", "Espantalho"], r: "Relógio" },
+{ p: "O que corre sem sair do lugar?", o: ["Relógio", "Rio", "Motor", "Nuvem"], r: "Rio" },
+{ p: "Qual é o fim de tudo?", o: ["Letra o", "Letra e", "Letra g", "Letra o"], r: "Letra o" },
+{ p: "O que fica molhado enquanto seca?", o: ["Toalha", "Sol", "Vento", "Chão"], r: "Toalha" },
+{ p: "Tem chave mas não abre porta. O que é?", o: ["Piano", "Código", "Cadeado", "Mapa"], r: "Piano" },
+{ p: "Quanto mais quente fico, mais frio deixo. O que sou?", o: ["Gelo", "Neve", "Freezer", "Sombra"], r: "Gelo" },
+{ p: "O que anda com os pés na cabeça?", o: ["Piolho", "Ideia", "Capacete", "Pessoa"], r: "Piolho" },
+{ p: "Quanto mais você corre, mais eu fico para trás. O que sou?", o: ["Trilho", "Tempo", "Sombra", "Rastro"], r: "Rastro" },
+{ p: "O que é maior que Deus, mais maligno que o diabo, os pobres têm e os ricos precisam?", o: ["Nada", "Tempo", "Amor", "Fé"], r: "Nada" },
+{ p: "O que é cheio de buracos mas ainda assim segura água?", o: ["Esponja", "Peneira", "Toalha", "Balde"], r: "Esponja" },
+{ p: "Se você tem isso, quer compartilhar. Se compartilha, não tem mais. O que é?", o: ["Segredo", "Comida", "Brinquedo", "Tempo"], r: "Segredo" },
+{ p: "O que começa com 'e', termina com 'e' e tem apenas uma letra dentro?", o: ["Envelope", "Eclipse", "Elefante", "Esqueleto"], r: "Envelope" },
+{ p: "O que se quebra quando se fala?", o: ["Silêncio", "Vidro", "Segredo", "Gelo"], r: "Silêncio" },
+
+
+{ p: "O que sempre está vindo, mas nunca chega?", o: ["Amanhã", "Trem", "Tempo", "Mensagem"], r: "Amanhã" },
+{ p: "O que tem cabeça, mas não pensa?", o: ["Alho", "Prego", "Boneco", "Chave"], r: "Alho" },
+{ p: "O que pode viajar pelo mundo, enquanto fica no canto?", o: ["Selo", "Internet", "Eco", "Foto"], r: "Selo" },
+{ p: "Qual a palavra que se lê igual de frente para trás e de trás para frente?", o: ["Radar", "Reviver", "Civic", "Arara"], r: "Radar" },
+{ p: "O que se quebra antes de ser usado?", o: ["Ovo", "Lápis", "Segredo", "Chave"], r: "Ovo" },
+{ p: "Tem um olho, mas não consegue ver. O que é?", o: ["Agulha", "Tempestade", "Câmera", "Cíclope"], r: "Agulha" },
+{ p: "Quanto mais você tira de mim, mais eu cresço. O que sou?", o: ["Buraco", "Sombra", "Estrada", "Espaço"], r: "Buraco" },
+{ p: "Qual animal anda com os pés na cabeça?", o: ["Piolho", "Macaco", "Tatu", "Tamanduá"], r: "Piolho" },
+{ p: "Você pode me encontrar no céu, mas não sou estrela. Brilho, mas não sou sol. O que sou?", o: ["Lua", "Cometa", "Avião", "Foguete"], r: "Lua" },
+{ p: "Quanto mais seco, mais molhado fica. O que é?", o: ["Toalha", "Areia", "Terra", "Fogo"], r: "Toalha" },
+{ p: "Tenho dentes, mas não mordo. O que sou?", o: ["Pente", "Serra", "Chave inglesa", "Trator"], r: "Pente" },
+{ p: "Sou alto quando sou jovem e curto quando sou velho. O que sou?", o: ["Vela", "Pessoa", "Árvore", "Fósforo"], r: "Vela" },
+{ p: "Posso ser quebrado sem ser tocado. O que sou?", o: ["Promessa", "Silêncio", "Segredo", "Coração"], r: "Promessa" },
+{ p: "Tenho palavras, mas não falo. O que sou?", o: ["Livro", "Quadro", "Computador", "Relógio"], r: "Livro" },
+{ p: "O que se move sem sair do lugar?", o: ["Relógio", "Tempo", "Rio", "Ponte"], r: "Relógio" },
+{ p: "Você me usa para dormir, mas nunca me lava. O que sou?", o: ["Travesseiro", "Colchão", "Lençol", "Cobertor"], r: "Travesseiro" },
+{ p: "O que você joga fora quando precisa, mas guarda quando não precisa?", o: ["Âncora", "Saco", "Remédio", "Rede"], r: "Âncora" },
+{ p: "O que não tem corpo, mas pode te machucar?", o: ["Palavra", "Vento", "Som", "Olhar"], r: "Palavra" },
+{ p: "Quanto mais você tem de mim, menos você vê. O que sou?", o: ["Escuridão", "Fumaça", "Neblina", "Poeira"], r: "Escuridão" },
+{ p: "O que é feito para andar e nunca se move?", o: ["Rua", "Carro", "Esteira", "Trilho"], r: "Rua" },
+
+
+{ p: "Sou leve como uma pena, mas ninguém consegue me segurar por muito tempo. O que sou?", o: ["Respiração", "Vento", "Pensamento", "Som"], r: "Respiração" },
+{ p: "O que sobe e nunca desce?", o: ["Idade", "Temperatura", "Balão", "Chaminé"], r: "Idade" },
+{ p: "Quanto mais eu trabalho, menor eu fico. O que sou?", o: ["Sabonete", "Vela", "Pneu", "Pilha"], r: "Sabonete" },
+{ p: "O que tem chaves, mas não abre portas?", o: ["Piano", "Cofre", "Fechadura", "Controle"], r: "Piano" },
+{ p: "Quanto mais você me tira, mais eu cresço. O que sou?", o: ["Buraco", "Som", "Mistério", "Raiva"], r: "Buraco" },
+{ p: "Qual é o lugar onde todos podem sentar, mas ninguém se senta?", o: ["Banco de dados", "Banco de areia", "Sala de espera", "Banco digital"], r: "Banco de dados" },
+{ p: "O que nunca pergunta, mas sempre é respondido?", o: ["Telefone", "Livro", "Cartas", "Alarme"], r: "Telefone" },
+{ p: "Quanto mais você corre, mais eu fico para trás. O que sou?", o: ["Tempo", "Sombra", "Distância", "Ar"], r: "Sombra" },
+{ p: "O que é seu, mas outros usam mais do que você?", o: ["Nome", "Carro", "Casa", "Telefone"], r: "Nome" },
+{ p: "O que não pode ser visto, mas pode ser sentido?", o: ["Amor", "Medo", "Vento", "Vontade"], r: "Vento" },
+{ p: "Tem pés, mas não anda. O que é?", o: ["Mesa", "Relógio", "Cadeira", "Armário"], r: "Mesa" },
+{ p: "O que tem um pescoço, mas não tem cabeça?", o: ["Garrafa", "Camisa", "Jarro", "Copo"], r: "Garrafa" },
+{ p: "O que é cheio de buracos, mas ainda segura água?", o: ["Esponja", "Rede", "Balde", "Cano"], r: "Esponja" },
+{ p: "Tenho um coração que não bate. O que sou?", o: ["Alcachofra", "Computador", "Arte", "Relógio"], r: "Alcachofra" },
+{ p: "Posso ser longa ou curta; posso ser colada ou falada. O que sou?", o: ["História", "Mentira", "Carta", "Resposta"], r: "História" },
+{ p: "Você me encontra no final do arco-íris. O que sou?", o: ["Letra R", "Tesouro", "Pote de ouro", "Esperança"], r: "Letra R" },
+{ p: "Tenho cidades sem pessoas e estradas sem carros. O que sou?", o: ["Mapa", "Sonho", "Livro", "Memória"], r: "Mapa" },
+{ p: "Sou alto quando jovem e baixo quando velho. O que sou?", o: ["Vela", "Pessoa", "Fósforo", "Montanha"], r: "Vela" },
+{ p: "O que é invisível, mas te faz cair se ignorado?", o: ["Degrau", "Gravidade", "Ar", "Cuidado"], r: "Gravidade" },
+{ p: "O que tem um rabo, mas não é animal?", o: ["Cometa", "Pipa", "Chave", "Fita"], r: "Cometa" },
+
+{ p: "O que passa pela água e não se molha?", o: ["Sombra", "Vento", "Luz", "Ponte"], r: "Sombra" },
+{ p: "Quanto mais você me tem, menos você vê. O que sou?", o: ["Escuridão", "Luz", "Sono", "Névoa"], r: "Escuridão" },
+{ p: "Qual é a coisa que quanto mais se tira, maior ela fica?", o: ["Buraco", "Segredo", "Som", "Raiva"], r: "Buraco" },
+{ p: "Anda sem pernas e murmura sem boca. O que é?", o: ["Rio", "Vento", "Relógio", "Sombra"], r: "Rio" },
+{ p: "O que nunca se cansa, corre sem parar, mas não sai do lugar?", o: ["Relógio", "Água", "Som", "Tempo"], r: "Relógio" },
+{ p: "O que quebra sem ser tocado?", o: ["Promessa", "Coração", "Silêncio", "Vento"], r: "Silêncio" },
+{ p: "Tenho raízes invisíveis, cresço para cima. O que sou?", o: ["Montanha", "Árvore", "Fumaça", "Pensamento"], r: "Montanha" },
+{ p: "O que enche uma sala, mas não ocupa espaço?", o: ["Luz", "Som", "Ar", "Vento"], r: "Luz" },
+{ p: "Você me tem no início da vida, e no fim da morte. O que sou?", o: ["Letra E", "Respiração", "Tempo", "Memória"], r: "Letra E" },
+{ p: "Sou alto quando estou sentado, mas baixo quando estou em pé. O que sou?", o: ["Cachimbo", "Cachorro", "Criança", "Cachimbo"], r: "Cachimbo" },
+{ p: "Sou usado para andar, mas não tenho pernas. O que sou?", o: ["Sapato", "Bicicleta", "Caminho", "Chinelo"], r: "Sapato" },
+{ p: "Posso segurar água, mas tenho buracos. O que sou?", o: ["Esponja", "Rede", "Mão", "Peneira"], r: "Esponja" },
+{ p: "Qual animal anda com as patas, mas deixa apenas um rastro?", o: ["Cavalo", "Pato", "Serpente", "Caracol"], r: "Serpente" },
+{ p: "Sou redondo e plano, mas não sou prato. O que sou?", o: ["Moeda", "CD", "Espelho", "Bola"], r: "CD" },
+{ p: "Se você me mencionar, eu desapareço. O que sou?", o: ["Silêncio", "Sombra", "Segredo", "Verdade"], r: "Silêncio" },
+{ p: "O que pode atravessar o vidro sem quebrá-lo?", o: ["Luz", "Som", "Calor", "Vento"], r: "Luz" },
+{ p: "Sou uma palavra com letras, mas não faço parte do alfabeto. O que sou?", o: ["Palavra", "Letreiro", "Envelope", "Frase"], r: "Palavra" },
+{ p: "Quanto mais você anda, mais me perde. O que sou?", o: ["Tempo", "Fôlego", "Calorias", "Peso"], r: "Fôlego" },
+{ p: "Sou menor que uma formiga, mas carrego mundos. O que sou?", o: ["Bit", "Átomo", "Chip", "Ideia"], r: "Átomo" },
+{ p: "Sou um buraco que leva a todos os lugares. O que sou?", o: ["Portal", "Buraco negro", "Wi-Fi", "Internet"], r: "Internet" },
+
+
+{ p: "O que você encontra no começo da noite e no final da manhã?", o: ["Letra N", "Sol", "Luz", "Vento"], r: "Letra N" },
+{ p: "O que tem boca, mas não fala?", o: ["Riacho", "Cavalo", "Cachorro", "Boca de lobo"], r: "Riacho" },
+{ p: "Qual é o cúmulo do espelho?", o: ["Ver o futuro", "Ver o reflexo", "Ver o avesso", "Ver o passado"], r: "Ver o avesso" },
+{ p: "Qual é o país que tem mais cartas?", o: ["Suíça", "França", "Portugal", "Estados Unidos"], r: "Portugal" },
+{ p: "O que fica entre a terra e o céu?", o: ["Ar", "Nuvem", "Avião", "Sol"], r: "Ar" },
+{ p: "O que sempre aumenta e nunca diminui?", o: ["Idade", "Memória", "Peso", "Vento"], r: "Idade" },
+{ p: "O que nunca é grande o suficiente para um cavalo, mas é pequeno para um rato?", o: ["Buraco", "Céu", "Cama", "Vaso"], r: "Cama" },
+{ p: "O que se quebra quando se fala?", o: ["Silêncio", "Espelho", "Segredo", "Verdade"], r: "Silêncio" },
+{ p: "Quanto mais você me tira, maior eu fico. O que sou?", o: ["Buraco", "Segredo", "Sombra", "Mistério"], r: "Buraco" },
+{ p: "Eu sou a chave de muitos mistérios, mas sou invisível. O que sou?", o: ["Pensamento", "Segredo", "Razão", "Luz"], r: "Pensamento" },
+{ p: "O que é mais leve que uma pena, mas nem mesmo o homem mais forte pode segurá-lo por mais de 5 minutos?", o: ["Respiração", "Vento", "Pensamento", "Luz"], r: "Respiração" },
+{ p: "Qual é o animal que vive no frio, mas tem pele de cobra?", o: ["Jacaré", "Crocodilo", "Iguana", "Pinguim"], r: "Iguana" },
+{ p: "O que sobe e nunca desce?", o: ["Idade", "Temperatura", "Balão", "Chaminé"], r: "Idade" },
+{ p: "Qual é o tipo de árvore que é mais comum na escola?", o: ["Árvore de Natal", "Árvore de Livros", "Árvore Genealógica", "Árvore de Conhecimento"], r: "Árvore Genealógica" },
+{ p: "O que tem dentes, mas não morde?", o: ["Pente", "Rato", "Serpente", "Ferro"], r: "Pente" },
+{ p: "O que tem um corpo, mas não tem vida?", o: ["Boneco", "Livro", "Escultura", "Cadeira"], r: "Boneco" },
+{ p: "Qual é o número que não pode ser tocado?", o: ["Zero", "Um", "Dois", "Cinco"], r: "Zero" },
+{ p: "Quem tem cabeça e não tem corpo?", o: ["Alho", "Moeda", "Espelho", "Caveira"], r: "Moeda" },
+{ p: "O que tem raiz, mas não cresce?", o: ["Raiz quadrada", "Raiz de árvore", "Raiz de planta", "Raiz de tubérculo"], r: "Raiz quadrada" },
+{ p: "Tenho um corpo, mas não tenho alma. O que sou?", o: ["Boneco", "Livro", "Espelho", "Relógio"], r: "Boneco" },
+
+
+{ p: "O que sempre está na frente de você, mas você nunca pode ver?", o: ["Futuro", "Sombra", "Reflexo", "Passado"], r: "Futuro" },
+{ p: "O que é branco quando está sujo e preto quando está limpo?", o: ["Quadro-negro", "Chão", "Camiseta", "Mesa"], r: "Quadro-negro" },
+{ p: "O que você pode quebrar sem nunca tocá-lo?", o: ["Promessa", "Coração", "Silêncio", "Muro"], r: "Promessa" },
+{ p: "O que é mais leve que uma pena, mas pode derrubar um elefante?", o: ["Sombra", "Pensamento", "Ar", "Som"], r: "Pensamento" },
+{ p: "O que você pode ver, mas não tocar?", o: ["Futuro", "Sombra", "Reflexo", "Vento"], r: "Reflexo" },
+{ p: "O que é maior que Deus, mais maligno que o diabo, os pobres têm, os ricos precisam e se você come, você morre?", o: ["Nada", "Pobreza", "Maldição", "Escuridão"], r: "Nada" },
+{ p: "O que é invisível, mas todos podem sentir?", o: ["Vento", "Amor", "Fogo", "Raio"], r: "Vento" },
+{ p: "O que é seu, mas os outros usam mais que você?", o: ["Nome", "Telefone", "Coração", "Rosto"], r: "Nome" },
+{ p: "Quanto mais você tira, maior fica. O que é?", o: ["Buraco", "Coração", "Sombra", "Segredo"], r: "Buraco" },
+{ p: "O que é que se perde na água, mas nunca se afunda?", o: ["Sombra", "Vento", "Reflexo", "Sol"], r: "Reflexo" },
+{ p: "O que é que começa com T, termina com T, e tem T dentro?", o: ["Teatro", "Tapete", "Trem", "Tetra"], r: "Tetra" },
+{ p: "Qual é o caminho que todos devem seguir, mas ninguém sabe onde vai dar?", o: ["Vida", "Morte", "Futuro", "Sonho"], r: "Vida" },
+{ p: "Qual é a coisa que você sempre tem nas mãos, mas nunca consegue ver?", o: ["Futuro", "Reflexo", "Tempo", "Sombra"], r: "Tempo" },
+{ p: "O que é que tem 4 pernas e não anda?", o: ["Mesa", "Cadeira", "Cama", "Banco"], r: "Mesa" },
+{ p: "O que é que é mais rápido que a luz, mas não pode ser visto?", o: ["Pensamento", "Som", "Vento", "Raio"], r: "Pensamento" },
+{ p: "O que é que todo mundo tem, mas ninguém pode usar?", o: ["Sombra", "Tempo", "Passado", "Futuro"], r: "Futuro" },
+{ p: "O que você pode colocar no seu bolso, mas não pode ver?", o: ["Buraco", "Ar", "Sombra", "Sol"], r: "Ar" },
+{ p: "O que é que não tem começo nem fim, mas é importante para todos?", o: ["Círculo", "Amor", "Amizade", "Felicidade"], r: "Círculo" },
+{ p: "O que tem olhos, mas não vê?", o: ["Agulha", "Cachorro", "Lupa", "Cavalo"], r: "Agulha" },
+
+
+{ p: "O que é que tem uma chave, mas não abre portas?", o: ["Piano", "Caixa", "Relógio", "Carro"], r: "Piano" },
+{ p: "Qual é a coisa que você pode segurar sem nunca tocá-la?", o: ["Respiração", "Coração", "Pensamento", "Futuro"], r: "Pensamento" },
+{ p: "O que nunca volta, mesmo que você o chame?", o: ["Passado", "Futuro", "Sol", "Vento"], r: "Passado" },
+{ p: "O que não pode ser tocado, mas pode ser ouvido?", o: ["Som", "Vento", "Luz", "Reflexo"], r: "Som" },
+{ p: "O que tem dentes, mas não pode morder?", o: ["Pente", "Rato", "Serpente", "Ferro"], r: "Pente" },
+{ p: "Qual é o número que, quando dividido por 2, o resultado é o mesmo?", o: ["1", "0", "2", "4"], r: "0" },
+{ p: "O que é feito de água, mas não pode ser molhado?", o: ["Vapor", "Gelo", "Ar", "Nuvem"], r: "Vapor" },
+{ p: "Qual é a coisa que vai de um lugar para outro, mas nunca se move?", o: ["Luz", "Som", "Ar", "Pensamento"], r: "Luz" },
+{ p: "O que é invisível e você sente, mas não consegue ver?", o: ["Vento", "Amor", "Raiva", "Sombra"], r: "Vento" },
+{ p: "Qual é o nome do animal que sempre está atrasado?", o: ["Preguiça", "Tartaruga", "Cavalo", "Leão"], r: "Preguiça" },
+{ p: "O que tem muitos dentes, mas não morde?", o: ["Pente", "Serpente", "Cachorro", "Rato"], r: "Pente" },
+{ p: "Qual é o mês que tem 28 dias?", o: ["Todos os meses", "Fevereiro", "Março", "Abril"], r: "Todos os meses" },
+{ p: "O que é que sempre aumenta e nunca diminui?", o: ["Idade", "Peso", "Temperatura", "Sombra"], r: "Idade" },
+{ p: "Qual é o animal que anda com as patas para trás?", o: ["Cavalo", "Canguru", "Camarão", "Pato"], r: "Camarão" },
+{ p: "O que é que tem asas, mas não voa?", o: ["Avião", "Morcego", "Fruta", "Pássaro"], r: "Avião" },
+{ p: "O que nunca se cansa, mas sempre está em movimento?", o: ["Relógio", "Vento", "Futuro", "Mar"], r: "Relógio" },
+{ p: "O que sempre está na sua frente, mas você nunca consegue tocar?", o: ["Futuro", "Sol", "Passado", "Reflexo"], r: "Futuro" },
+{ p: "O que sobe, mas nunca desce?", o: ["Idade", "Fumaça", "Sol", "Nuvem"], r: "Idade" },
+{ p: "O que é feito de água, mas não se molha?", o: ["Vapor", "Gelo", "Chuva", "Nuvem"], r: "Vapor" },
+{ p: "O que você encontra em todos os lugares, mas nunca pode tocar?", o: ["Vento", "Pensamento", "Som", "Reflexo"], r: "Vento" },
+
+
+{ p: "O que sempre fala, mas nunca tem boca?", o: ["Relógio", "Telefone", "Sombra", "Livro"], r: "Relógio" },
+{ p: "O que é transparente, mas você nunca consegue ver?", o: ["Ar", "Vento", "Reflexo", "Som"], r: "Ar" },
+{ p: "O que pode ser tocado, mas não é visto?", o: ["Som", "Vento", "Pensamento", "Amor"], r: "Som" },
+{ p: "Qual é o animal que nunca tem fome?", o: ["Cobra", "Leão", "Morcego", "Sapo"], r: "Cobra" },
+{ p: "O que pode ser grande, mas nunca se move?", o: ["Montanha", "Mar", "Sol", "Lua"], r: "Montanha" },
+{ p: "Qual é o lugar onde o sol nunca se põe?", o: ["Antártida", "Hemisfério Norte", "Hemisfério Sul", "No topo do mundo"], r: "Hemisfério Norte" },
+{ p: "O que anda sem pernas?", o: ["Carro", "Cavalo", "Relógio", "Vento"], r: "Carro" },
+{ p: "O que você pode quebrar, mas não pode tocar?", o: ["Silêncio", "Cristal", "Vidro", "Promessa"], r: "Silêncio" },
+{ p: "O que é que tem um coração, mas não é um ser vivo?", o: ["Pipoca", "Coração de batata", "Coração de carneiro", "Relógio"], r: "Relógio" },
+{ p: "O que é cheio de buracos, mas ainda assim retém água?", o: ["Esponja", "Cesto", "Rede", "Rede de pesca"], r: "Esponja" },
+{ p: "Qual é o número que nunca é par nem ímpar?", o: ["Zero", "Dois", "Um", "Quatro"], r: "Zero" },
+{ p: "O que é mais forte que o ferro, mas pode ser quebrado com uma palavra?", o: ["Silêncio", "Amor", "Mentira", "Choro"], r: "Silêncio" },
+{ p: "O que você pode fazer sem usar as mãos?", o: ["Respirar", "Pensar", "Ver", "Sentir"], r: "Pensar" },
+{ p: "Qual é o nome do animal que sempre vai para trás?", o: ["Caracol", "Cavalo", "Rato", "Camelo"], r: "Caracol" },
+{ p: "O que é mais quente do que o sol, mas nunca queima?", o: ["Amor", "Abraço", "Luz", "Fogo"], r: "Amor" },
+{ p: "O que é que sempre aumenta, mas nunca diminui?", o: ["Idade", "Número de horas", "Contagem", "Passado"], r: "Idade" },
+{ p: "Qual é o único lugar onde o céu é de cor verde?", o: ["Nada", "Mar", "Campos", "Céu da primavera"], r: "Nada" },
+{ p: "O que não tem corpo, mas é pesado como um elefante?", o: ["Pensamento", "Amor", "Sentimento", "Lembrança"], r: "Pensamento" },
+{ p: "Qual é o animal que tem mais dentes do que qualquer outro?", o: ["Crocodilo", "Tubarão", "Serpente", "Cavalo"], r: "Tubarão" },
+
+
+{ p: "O que sempre cresce, mas nunca diminui?", o: ["Idade", "Tempo", "Chuva", "Sol"], r: "Idade" },
+{ p: "O que é invisível, mas tem o poder de destruir?", o: ["Vento", "Raiva", "Luz", "Sombra"], r: "Raiva" },
+{ p: "O que é o que mais vemos no céu e nunca tocamos?", o: ["Nuvem", "Sol", "Estrela", "Lua"], r: "Nuvem" },
+{ p: "O que é feito de vidro, mas nunca se quebra?", o: ["Espelho", "Lente", "Vidro temperado", "Lente de aumento"], r: "Espelho" },
+{ p: "O que sempre está no centro, mas nunca tem forma?", o: ["Ponto", "Árvore", "Coração", "Mundo"], r: "Ponto" },
+{ p: "O que tem cabeça, mas não tem corpo?", o: ["Alho", "Cerveja", "Espelho", "Pente"], r: "Alho" },
+{ p: "O que sempre fica no fundo, mas nunca se vê?", o: ["Mar", "Fundo do mar", "Sombra", "Água"], r: "Fundo do mar" },
+{ p: "O que é redondo, mas não é uma bola?", o: ["Roda", "Lua", "Sombra", "Sol"], r: "Roda" },
+{ p: "O que sempre fica em movimento, mas nunca se cansa?", o: ["Relógio", "Vento", "Mar", "Carro"], r: "Relógio" },
+{ p: "O que você pode encontrar em todos os lugares, mas não pode tocar?", o: ["Vento", "Som", "Pensamento", "Amor"], r: "Vento" },
+{ p: "Qual é o animal que se move mais rápido?", o: ["Gato", "Cavalo", "Guepardo", "Leão"], r: "Guepardo" },
+{ p: "O que se pode ver uma vez em um minuto, duas vezes em um momento, mas nunca em mil anos?", o: ["Letra M", "Sol", "Lua", "Sombra"], r: "Letra M" },
+{ p: "Qual é o dia mais curto do ano?", o: ["Dia 21 de junho", "Dia 25 de dezembro", "Dia 1 de janeiro", "Dia 21 de dezembro"], r: "Dia 21 de dezembro" },
+{ p: "O que passa mais rápido que o som?", o: ["Luz", "Vento", "Cavalo", "Cometa"], r: "Luz" },
+{ p: "O que sempre é lido, mas nunca falado?", o: ["Livro", "Revista", "Jornal", "Telegrama"], r: "Livro" },
+{ p: "O que você usa todo dia, mas nunca vê?", o: ["Ar", "Sombra", "Espelho", "Calçado"], r: "Ar" },
+{ p: "Qual é o número que nunca muda?", o: ["Zero", "Um", "Dois", "Três"], r: "Zero" },
+{ p: "O que você encontra em todos os lugares, mas não pode tocar?", o: ["Vento", "Reflexo", "Som", "Pensamento"], r: "Reflexo" },
+{ p: "O que nunca diz a verdade, mas sempre conta uma história?", o: ["Livro", "Impressora", "Revista", "Cartão"], r: "Livro" },
+{ p: "O que é mais doce do que mel, mas tem mais calor?", o: ["Chocolate", "Amor", "Sorrisos", "Coração"], r: "Amor" },
+
+
+{ p: "Qual é o maior oceano do mundo?", o: ["Atlântico", "Índico", "Ártico", "Pacífico"], r: "Pacífico" },
+{ p: "O que nunca cresce, mas sempre aumenta?", o: ["Número de horas", "Contagem", "Passado", "Futuro"], r: "Número de horas" },
+{ p: "O que faz mais barulho quando se quebra?", o: ["Vidro", "Coração", "Espelho", "Relação"], r: "Vidro" },
+{ p: "O que é que tem olhos, mas não vê?", o: ["Agulha", "Espelho", "Cavalo", "Lente"], r: "Agulha" },
+{ p: "Qual é o mês que tem 30 dias?", o: ["Março", "Maio", "Abril", "Junho"], r: "Abril" },
+{ p: "O que pode ser apertado, mas nunca se rompe?", o: ["Mão", "Cinto", "Rosa", "Nuvem"], r: "Mão" },
+{ p: "Qual é a coisa que, por mais que você tente, nunca consegue tocar?", o: ["Futuro", "Reflexo", "Ar", "Sombra"], r: "Futuro" },
+{ p: "Qual é o número que, quando somado a ele mesmo, resulta em 12?", o: ["6", "7", "5", "8"], r: "6" },
+{ p: "O que você coloca na mesa, mas não come?", o: ["Guardanapo", "Prato", "Vaso", "Copo"], r: "Guardanapo" },
+{ p: "O que é pequeno, mas pode criar grandes estragos?", o: ["Mosquito", "Cachorro", "Cavalo", "Gato"], r: "Mosquito" },
+{ p: "Qual é o único animal que consegue voar para trás?", o: ["Beija-flor", "Cavalo", "Morcego", "Gavião"], r: "Beija-flor" },
+{ p: "O que tem boca, mas não fala?", o: ["Riacho", "Livro", "Vaso", "Lago"], r: "Riacho" },
+{ p: "Qual é o nome do animal que nunca tem frio?", o: ["Camelo", "Pinguim", "Cavalo", "Leão"], r: "Camelo" },
+{ p: "Qual é o nome do objeto que nunca é tocado, mas pode ser sentido?", o: ["Pensamento", "Som", "Ar", "Frio"], r: "Frio" },
+{ p: "O que nunca é pedido, mas sempre é dado?", o: ["Ajuda", "Sorriso", "Presentes", "Amor"], r: "Ajuda" },
+{ p: "O que tem quatro patas e só anda quando está sendo carregado?", o: ["Cadeira", "Carro", "Bicicleta", "Carroça"], r: "Cadeira" },
+{ p: "O que é preto quando é limpo e branco quando está sujo?", o: ["Tabuleiro", "Quadro negro", "Camisa", "Papel"], r: "Quadro negro" },
+{ p: "Qual é a coisa que, quando dividida, se torna maior?", o: ["Mistério", "Segredo", "Problema", "Alegria"], r: "Segredo" },
+{ p: "O que tem pernas, mas não anda?", o: ["Mesa", "Cadeira", "Cavalo", "Cama"], r: "Mesa" },
+{ p: "Quanto mais você tira, maior fica. O que é?", o: ["Buraco", "Buraco negro", "Som", "Vazio"], r: "Buraco" },
+{ p: "Eu sou leve como uma pena, mas nem o homem mais forte consegue me segurar por mais de 5 minutos. O que sou?", o: ["Respiração", "Água", "Sombra", "Pensamento"], r: "Respiração" },
+{ p: "O que é que quanto mais você tem, menos você vê?", o: ["Escuro", "Nuvens", "Vírus", "Fumaça"], r: "Escuro" },
+    ];
+
+    let indiceAtual = 0;
+    let acertos = 0;
+    const perguntaEl = document.getElementById("pergunta");
+    const opcoesEl = document.getElementById("opcoes");
+    const btnReiniciar = document.getElementById("reiniciar");
+    const resultadoEl = document.getElementById("resultado");
+
+    function embaralhar(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function mostrarEnigma() {
+      const e = enigmas[indiceAtual];
+      perguntaEl.innerText = e.p;
+      opcoesEl.innerHTML = "";
+      embaralhar(e.o).forEach(op => {
+        const btn = document.createElement("button");
+        btn.innerText = op;
+        btn.onclick = () => verificarResposta(btn, op, e.r);
+        opcoesEl.appendChild(btn);
+      });
+    }
+
+    function verificarResposta(botao, escolha, correta) {
+      const botoes = document.querySelectorAll('#opcoes button');
+      botoes.forEach(b => b.disabled = true);
+
+      if (escolha === correta) {
+        botao.classList.add("btn-correta");
+        acertos++;
+        setTimeout(() => {
+          indiceAtual++;
+          if (indiceAtual >= enigmas.length) {
+            perguntaEl.innerText = "Parabéns! Você concluiu todos os enigmas!";
+            opcoesEl.innerHTML = "";
+            resultadoEl.innerText = `Você acertou ${acertos} de ${enigmas.length} enigmas!`;
+            resultadoEl.style.display = "block";
+            btnReiniciar.style.display = "block";
+          } else {
+            mostrarEnigma();
+          }
+        }, 1000);
+      } else {
+        botao.classList.add("btn-incorreta");
+        setTimeout(() => {
+          perguntaEl.innerText = "Você perdeu! Tente novamente.";
+          opcoesEl.innerHTML = "";
+          resultadoEl.innerText = `Você acertou ${acertos} de ${enigmas.length} enigmas.`;
+          resultadoEl.style.display = "block";
+          btnReiniciar.style.display = "block";
+        }, 1000);
+      }
+    }
+
+    btnReiniciar.onclick = () => {
+      indiceAtual = 0;
+      acertos = 0;
+      resultadoEl.style.display = "none";
+      btnReiniciar.style.display = "none";
+      mostrarEnigma();
+    };
+
+    embaralhar(enigmas);
+    mostrarEnigma();
+  </script>
+</body>
+</html>
