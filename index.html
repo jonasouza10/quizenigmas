@@ -3,70 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   
-  <link rel="icon" type="image/png" href="jogo.png">
+   <link rel="icon" type="image/png" href="jogo.png">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1e1e2f" />
-  <link rel="manifest" href="manifest.json" />
   <title>Quiz Enigmas</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      text-align: center;
-    }
-    .container {
-      max-width: 600px;
-      background: #1e1e2f;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .btn-correta {
-      background-color: #28a745 !important;
-    }
-    .btn-incorreta {
-      background-color: #dc3545 !important;
-    }
-    .resultado {
-      margin-top: 20px;
-      font-size: 1.2em;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>Quiz Enigmas</h1>
-    <div id="pergunta"></div>
-    <div id="opcoes"></div>
-    <button id="reiniciar" style="display:none">Reiniciar Jogo</button>
-    <div id="resultado" class="resultado" style="display:none;"></div>
-  </div>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+  <div id="root"></div>
+  <div id="error" class="hidden text-red-500 text-center"></div>
 
-  <script>
+  <script type="text/babel">
+    // Lista reduzida de enigmas para teste (adicione mais conforme necessário)
     const enigmas = [
+{ p: "O que você encontra no começo da noite e no final da manhã?", o: ["Letra N", "Sol", "Luz", "Vento"], r: "Letra N" },
+{ p: "O que tem boca, mas não fala?", o: ["Riacho", "Cavalo", "Cachorro", "Boca de lobo"], r: "Riacho" },
+{ p: "Qual é o cúmulo do espelho?", o: ["Ver o futuro", "Ver o reflexo", "Ver o avesso", "Ver o passado"], r: "Ver o avesso" },
+{ p: "Qual é o país que tem mais cartas?", o: ["Suíça", "França", "Portugal", "Estados Unidos"], r: "Portugal" },
+{ p: "O que fica entre a terra e o céu?", o: ["Ar", "Nuvem", "Avião", "Sol"], r: "Ar" },
+{ p: "O que sempre aumenta e nunca diminui?", o: ["Idade", "Memória", "Peso", "Vento"], r: "Idade" },
+{ p: "O que nunca é grande o suficiente para um cavalo, mas é pequeno para um rato?", o: ["Buraco", "Céu", "Cama", "Vaso"], r: "Cama" },
+{ p: "O que se quebra quando se fala?", o: ["Silêncio", "Espelho", "Segredo", "Verdade"], r: "Silêncio" },
+{ p: "Quanto mais você me tira, maior eu fico. O que sou?", o: ["Buraco", "Segredo", "Sombra", "Mistério"], r: "Buraco" },
+{ p: "Eu sou a chave de muitos mistérios, mas sou invisível. O que sou?", o: ["Pensamento", "Segredo", "Razão", "Luz"], r: "Pensamento" },
+{ p: "O que é mais leve que uma pena, mas nem mesmo o homem mais forte pode segurá-lo por mais de 5 minutos?", o: ["Respiração", "Vento", "Pensamento", "Luz"], r: "Respiração" },
+{ p: "Qual é o animal que vive no frio, mas tem pele de cobra?", o: ["Jacaré", "Crocodilo", "Iguana", "Pinguim"], r: "Iguana" },
+{ p: "O que sobe e nunca desce?", o: ["Idade", "Temperatura", "Balão", "Chaminé"], r: "Idade" },
+{ p: "Qual é o tipo de árvore que é mais comum na escola?", o: ["Árvore de Natal", "Árvore de Livros", "Árvore Genealógica", "Árvore de Conhecimento"], r: "Árvore Genealógica" },
+{ p: "O que tem dentes, mas não morde?", o: ["Pente", "Rato", "Serpente", "Ferro"], r: "Pente" },
+{ p: "O que tem um corpo, mas não tem vida?", o: ["Boneco", "Livro", "Escultura", "Cadeira"], r: "Boneco" },
+{ p: "Qual é o número que não pode ser tocado?", o: ["Zero", "Um", "Dois", "Cinco"], r: "Zero" },
+{ p: "Quem tem cabeça e não tem corpo?", o: ["Alho", "Moeda", "Espelho", "Caveira"], r: "Moeda" },
+{ p: "O que tem raiz, mas não cresce?", o: ["Raiz quadrada", "Raiz de árvore", "Raiz de planta", "Raiz de tubérculo"], r: "Raiz quadrada" },
+{ p: "Tenho um corpo, mas não tenho alma. O que sou?", o: ["Boneco", "Livro", "Espelho", "Relógio"], r: "Boneco" },
+
 { p: "Tenho cidades, mas não casas. Tenho montanhas, mas não árvores. Tenho água, mas não peixes. O que sou?", o: ["Mapa", "Ilusão", "Sonho", "Computador"], r: "Mapa" },
 { p: "Quanto mais você tira, maior eu fico. O que sou?", o: ["Buraco", "Fome", "Sombra", "Silêncio"], r: "Buraco" },
 { p: "O que sobe, mas nunca desce?", o: ["Idade", "Balão", "Fumaça", "Helicóptero"], r: "Idade" },
@@ -141,7 +115,7 @@
 { p: "Tenho raízes invisíveis, cresço para cima. O que sou?", o: ["Montanha", "Árvore", "Fumaça", "Pensamento"], r: "Montanha" },
 { p: "O que enche uma sala, mas não ocupa espaço?", o: ["Luz", "Som", "Ar", "Vento"], r: "Luz" },
 { p: "Você me tem no início da vida, e no fim da morte. O que sou?", o: ["Letra E", "Respiração", "Tempo", "Memória"], r: "Letra E" },
-{ p: "Sou alto quando estou sentado, mas baixo quando estou em pé. O que sou?", o: ["Cachimbo", "Cachorro", "Criança", "Cachimbo"], r: "Cachimbo" },
+{ p: "Sou alto quando estou sentado, mas baixo quando estou em pé. O que sou?", o: ["Gato", "Cachorro", "Criança", "Cachimbo"], r: "Cachimbo" },
 { p: "Sou usado para andar, mas não tenho pernas. O que sou?", o: ["Sapato", "Bicicleta", "Caminho", "Chinelo"], r: "Sapato" },
 { p: "Posso segurar água, mas tenho buracos. O que sou?", o: ["Esponja", "Rede", "Mão", "Peneira"], r: "Esponja" },
 { p: "Qual animal anda com as patas, mas deixa apenas um rastro?", o: ["Cavalo", "Pato", "Serpente", "Caracol"], r: "Serpente" },
@@ -152,28 +126,6 @@
 { p: "Quanto mais você anda, mais me perde. O que sou?", o: ["Tempo", "Fôlego", "Calorias", "Peso"], r: "Fôlego" },
 { p: "Sou menor que uma formiga, mas carrego mundos. O que sou?", o: ["Bit", "Átomo", "Chip", "Ideia"], r: "Átomo" },
 { p: "Sou um buraco que leva a todos os lugares. O que sou?", o: ["Portal", "Buraco negro", "Wi-Fi", "Internet"], r: "Internet" },
-
-
-{ p: "O que você encontra no começo da noite e no final da manhã?", o: ["Letra N", "Sol", "Luz", "Vento"], r: "Letra N" },
-{ p: "O que tem boca, mas não fala?", o: ["Riacho", "Cavalo", "Cachorro", "Boca de lobo"], r: "Riacho" },
-{ p: "Qual é o cúmulo do espelho?", o: ["Ver o futuro", "Ver o reflexo", "Ver o avesso", "Ver o passado"], r: "Ver o avesso" },
-{ p: "Qual é o país que tem mais cartas?", o: ["Suíça", "França", "Portugal", "Estados Unidos"], r: "Portugal" },
-{ p: "O que fica entre a terra e o céu?", o: ["Ar", "Nuvem", "Avião", "Sol"], r: "Ar" },
-{ p: "O que sempre aumenta e nunca diminui?", o: ["Idade", "Memória", "Peso", "Vento"], r: "Idade" },
-{ p: "O que nunca é grande o suficiente para um cavalo, mas é pequeno para um rato?", o: ["Buraco", "Céu", "Cama", "Vaso"], r: "Cama" },
-{ p: "O que se quebra quando se fala?", o: ["Silêncio", "Espelho", "Segredo", "Verdade"], r: "Silêncio" },
-{ p: "Quanto mais você me tira, maior eu fico. O que sou?", o: ["Buraco", "Segredo", "Sombra", "Mistério"], r: "Buraco" },
-{ p: "Eu sou a chave de muitos mistérios, mas sou invisível. O que sou?", o: ["Pensamento", "Segredo", "Razão", "Luz"], r: "Pensamento" },
-{ p: "O que é mais leve que uma pena, mas nem mesmo o homem mais forte pode segurá-lo por mais de 5 minutos?", o: ["Respiração", "Vento", "Pensamento", "Luz"], r: "Respiração" },
-{ p: "Qual é o animal que vive no frio, mas tem pele de cobra?", o: ["Jacaré", "Crocodilo", "Iguana", "Pinguim"], r: "Iguana" },
-{ p: "O que sobe e nunca desce?", o: ["Idade", "Temperatura", "Balão", "Chaminé"], r: "Idade" },
-{ p: "Qual é o tipo de árvore que é mais comum na escola?", o: ["Árvore de Natal", "Árvore de Livros", "Árvore Genealógica", "Árvore de Conhecimento"], r: "Árvore Genealógica" },
-{ p: "O que tem dentes, mas não morde?", o: ["Pente", "Rato", "Serpente", "Ferro"], r: "Pente" },
-{ p: "O que tem um corpo, mas não tem vida?", o: ["Boneco", "Livro", "Escultura", "Cadeira"], r: "Boneco" },
-{ p: "Qual é o número que não pode ser tocado?", o: ["Zero", "Um", "Dois", "Cinco"], r: "Zero" },
-{ p: "Quem tem cabeça e não tem corpo?", o: ["Alho", "Moeda", "Espelho", "Caveira"], r: "Moeda" },
-{ p: "O que tem raiz, mas não cresce?", o: ["Raiz quadrada", "Raiz de árvore", "Raiz de planta", "Raiz de tubérculo"], r: "Raiz quadrada" },
-{ p: "Tenho um corpo, mas não tenho alma. O que sou?", o: ["Boneco", "Livro", "Espelho", "Relógio"], r: "Boneco" },
 
 
 { p: "O que sempre está na frente de você, mas você nunca pode ver?", o: ["Futuro", "Sombra", "Reflexo", "Passado"], r: "Futuro" },
@@ -286,70 +238,246 @@
 { p: "O que é que quanto mais você tem, menos você vê?", o: ["Escuro", "Nuvens", "Vírus", "Fumaça"], r: "Escuro" },
     ];
 
-    let indiceAtual = 0;
-    let acertos = 0;
-    const perguntaEl = document.getElementById("pergunta");
-    const opcoesEl = document.getElementById("opcoes");
-    const btnReiniciar = document.getElementById("reiniciar");
-    const resultadoEl = document.getElementById("resultado");
+    const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
 
-    function embaralhar(array) {
-      return array.sort(() => Math.random() - 0.5);
-    }
-
-    function mostrarEnigma() {
-      const e = enigmas[indiceAtual];
-      perguntaEl.innerText = e.p;
-      opcoesEl.innerHTML = "";
-      embaralhar(e.o).forEach(op => {
-        const btn = document.createElement("button");
-        btn.innerText = op;
-        btn.onclick = () => verificarResposta(btn, op, e.r);
-        opcoesEl.appendChild(btn);
+    const QuizApp = () => {
+      const [currentIndex, setCurrentIndex] = React.useState(() => parseInt(localStorage.getItem('quizIndex')) || 0);
+      const [correctAnswers, setCorrectAnswers] = React.useState(() => parseInt(localStorage.getItem('quizCorrect')) || 0);
+      const [shuffledEnigmas, setShuffledEnigmas] = React.useState(() => {
+        const saved = localStorage.getItem('shuffledEnigmas');
+        if (saved) return JSON.parse(saved);
+        return shuffleArray(enigmas).map(enigma => ({
+          ...enigma,
+          o: shuffleArray(enigma.o)
+        }));
       });
-    }
+      const [gameState, setGameState] = React.useState('playing'); // playing, gameOver, review
+      const [timeLeft, setTimeLeft] = React.useState(30);
+      const [answers, setAnswers] = React.useState(() => {
+        const saved = localStorage.getItem('quizAnswers');
+        return saved ? JSON.parse(saved) : [];
+      });
+      const [error, setError] = React.useState(null);
+      const [feedback, setFeedback] = React.useState(null);
 
-    function verificarResposta(botao, escolha, correta) {
-      const botoes = document.querySelectorAll('#opcoes button');
-      botoes.forEach(b => b.disabled = true);
+      React.useEffect(() => {
+        try {
+          localStorage.setItem('quizIndex', currentIndex);
+          localStorage.setItem('quizCorrect', correctAnswers);
+          localStorage.setItem('shuffledEnigmas', JSON.stringify(shuffledEnigmas));
+          localStorage.setItem('quizAnswers', JSON.stringify(answers));
+        } catch (err) {
+          setError('Erro ao salvar progresso: ' + err.message);
+        }
+      }, [currentIndex, correctAnswers, shuffledEnigmas, answers]);
 
-      if (escolha === correta) {
-        botao.classList.add("btn-correta");
-        acertos++;
-        setTimeout(() => {
-          indiceAtual++;
-          if (indiceAtual >= enigmas.length) {
-            perguntaEl.innerText = "Parabéns! Você concluiu todos os enigmas!";
-            opcoesEl.innerHTML = "";
-            resultadoEl.innerText = `Você acertou ${acertos} de ${enigmas.length} enigmas!`;
-            resultadoEl.style.display = "block";
-            btnReiniciar.style.display = "block";
+      React.useEffect(() => {
+        if (gameState !== 'playing') return;
+        const timer = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              setGameState('gameOver');
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [currentIndex, gameState]);
+
+      const handleAnswer = (option) => {
+        try {
+          const currentEnigma = shuffledEnigmas[currentIndex];
+          const isCorrect = option === currentEnigma.r;
+          const newAnswer = {
+            question: currentEnigma.p,
+            selected: option,
+            correct: currentEnigma.r,
+            isCorrect
+          };
+          setAnswers([...answers, newAnswer]);
+
+          setFeedback({
+            selectedOption: option,
+            correctOption: currentEnigma.r,
+            isCorrect
+          });
+
+          if (isCorrect) {
+            setCorrectAnswers(correctAnswers + 1);
+            setTimeout(() => {
+              if (currentIndex + 1 >= shuffledEnigmas.length) {
+                setGameState('gameOver');
+              } else {
+                setCurrentIndex(currentIndex + 1);
+                setTimeLeft(30);
+                setFeedback(null);
+              }
+            }, 1000);
           } else {
-            mostrarEnigma();
+            setTimeout(() => {
+              setGameState('gameOver');
+            }, 1000);
           }
-        }, 1000);
-      } else {
-        botao.classList.add("btn-incorreta");
-        setTimeout(() => {
-          perguntaEl.innerText = "Você perdeu! Tente novamente.";
-          opcoesEl.innerHTML = "";
-          resultadoEl.innerText = `Você acertou ${acertos} de ${enigmas.length} enigmas.`;
-          resultadoEl.style.display = "block";
-          btnReiniciar.style.display = "block";
-        }, 1000);
-      }
-    }
+        } catch (err) {
+          setError('Erro ao processar resposta: ' + err.message);
+        }
+      };
 
-    btnReiniciar.onclick = () => {
-      indiceAtual = 0;
-      acertos = 0;
-      resultadoEl.style.display = "none";
-      btnReiniciar.style.display = "none";
-      mostrarEnigma();
+      const resetGame = () => {
+        try {
+          setCurrentIndex(0);
+          setCorrectAnswers(0);
+          setShuffledEnigmas(shuffleArray(enigmas).map(enigma => ({
+            ...enigma,
+            o: shuffleArray(enigma.o)
+          })));
+          setGameState('playing');
+          setTimeLeft(30);
+          setAnswers([]);
+          setFeedback(null);
+          localStorage.removeItem('quizIndex');
+          localStorage.removeItem('quizCorrect');
+          localStorage.removeItem('shuffledEnigmas');
+          localStorage.removeItem('quizAnswers');
+        } catch (err) {
+          setError('Erro ao reiniciar jogo: ' + err.message);
+        }
+      };
+
+      const enterReviewMode = () => {
+        setGameState('review');
+      };
+
+      if (error) {
+        return (
+          <div className="max-w-2xl w-full bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+            <h1 className="text-3xl font-bold mb-4">Erro</h1>
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={resetGame}
+              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition duration-300"
+            >
+              Tentar Novamente
+            </button>
+          </div>
+        );
+      }
+
+      if (gameState === 'review') {
+        return (
+          <div className="max-w-2xl w-full bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h1 className="text-3xl font-bold mb-4">Revisão das Respostas</h1>
+            {answers.map((ans, idx) => (
+              <div key={idx} className="mb-4 p-4 bg-gray-700 rounded">
+                <p className="text-lg">{ans.question}</p>
+                <p className={ans.selected === ans.correct ? 'text-green-400' : 'text-red-400'}>
+                  Sua resposta: {ans.selected}
+                </p>
+                <p className="text-green-400">Resposta correta: {ans.correct}</p>
+              </div>
+            ))}
+            <button
+              onClick={resetGame}
+              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition duration-300"
+            >
+              Jogar Novamente
+            </button>
+          </div>
+        );
+      }
+
+      if (gameState === 'gameOver') {
+        return (
+          <div className="max-w-2xl w-full bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+            <h1 className="text-3xl font-bold mb-4">Fim do Jogo!</h1>
+            <p className="text-xl mb-4">
+              Você acertou {correctAnswers} de {shuffledEnigmas.length} enigmas!
+            </p>
+            <div className="flex space-x-4">
+              <button
+                onClick={resetGame}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition duration-300"
+              >
+                Jogar Novamente
+              </button>
+              <button
+                onClick={enterReviewMode}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded transition duration-300"
+              >
+                Revisar Respostas
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      const currentEnigma = shuffledEnigmas[currentIndex];
+      const progress = ((currentIndex + 1) / shuffledEnigmas.length) * 100;
+
+      return (
+        <div className="max-w-2xl w-full bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h1 className="text-3xl font-bold mb-4 text-center">Quiz Enigmas</h1>
+          <div className="mb-4">
+            <div className="w-full bg-gray-600 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">
+              Pergunta {currentIndex + 1} de {shuffledEnigmas.length}
+            </p>
+          </div>
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-lg font-semibold">Tempo restante: {timeLeft}s</p>
+            <p className="text-lg">Acertos: {correctAnswers}</p>
+          </div>
+          <p className="text-xl mb-6 animate-fade-in">{currentEnigma.p}</p>
+          <div className="space-y-3">
+            {currentEnigma.o.map((option) => (
+              <button
+                key={option}
+                onClick={() => handleAnswer(option)}
+                className={`w-full py-3 rounded transition duration-300 ${
+                  feedback && feedback.isCorrect && option === feedback.correctOption
+                    ? 'btn-correta'
+                    : feedback && !feedback.isCorrect && option === feedback.selectedOption
+                    ? 'btn-incorreta'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                } disabled:bg-gray-600 disabled:cursor-not-allowed`}
+                disabled={feedback}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
     };
 
-    embaralhar(enigmas);
-    mostrarEnigma();
+    try {
+      ReactDOM.render(<QuizApp />, document.getElementById('root'));
+    } catch (err) {
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('error').innerText = 'Erro ao carregar o quiz: ' + err.message;
+    }
   </script>
-</body>
+  <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.5s ease-out;
+    }
+    .btn-correta {
+      background-color: #28a745 !important;
+    }
+    .btn-incorreta {
+      background-color: #dc3545 !important;
+    }
+  </style>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'939be6f6ac9c6782',t:'MTc0NjIzNDg3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
